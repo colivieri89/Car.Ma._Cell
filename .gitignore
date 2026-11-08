@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+build/
+dist/
+*.egg-info/
+main_output/
+examples/output_synthetic/
+examples/synthetic_step1.tif
+docs/manual/build/

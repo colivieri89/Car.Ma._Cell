@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt pytest
+      - run: python -m pytest -q
+        env:
+          MPLBACKEND: Agg
+
+  release:
+    # On a tag v*, publish a GitHub Release of that tag with the user manual attached.
+    needs: tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Name the user manual after the version
+        run: |
+          mkdir assets
+          cp docs/Car.Ma._Cell_User_Manual.pdf "assets/Car.Ma._Cell-${GITHUB_REF_NAME#v}-User-Manual.pdf"
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: assets/*
+          generate_release_notes: true

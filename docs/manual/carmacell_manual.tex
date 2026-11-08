@@ -1,0 +1,532 @@
+% Car.Ma._Cell user manual. Build with: .venv/bin/python docs/manual/make_manual.py
+% The files under build/ are written by make_manual.py from the program itself.
+\documentclass[fontsize=10.5pt,paper=a4,parskip=half,headings=normal,numbers=noenddot,
+  open=any,captions=tableheading]{scrreprt}
+
+\usepackage[top=2.6cm,bottom=2.8cm,left=2.5cm,right=2.5cm,headsep=0.9cm,footskip=1.2cm]{geometry}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\setmainfont{STIX Two Text}
+\setmathfont{STIX Two Math}
+\setsansfont{texgyreheros}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,
+  ItalicFont=*-italic,BoldItalicFont=*-bolditalic,Scale=0.92]
+\setmonofont{Inconsolatazi4}[Extension=.otf,UprightFont=*-Regular,BoldFont=*-Bold,Scale=0.92]
+
+\usepackage[dvipsnames]{xcolor}
+\definecolor{ink}{HTML}{243B53}
+\definecolor{accent}{HTML}{0072B2}
+\definecolor{muted}{HTML}{6B7A8C}
+\definecolor{border}{HTML}{D9E0E8}
+\definecolor{panel}{HTML}{F4F6F9}
+
+\usepackage{graphicx}
+\graphicspath{{build/figures/}{figures/}}
+\usepackage{float}
+\usepackage{booktabs,tabularx,longtable,array}
+\usepackage{enumitem}
+\setlist{itemsep=2pt,topsep=3pt,parsep=0pt}
+\setlist[description]{font=\sffamily\bfseries\color{ink}}
+\usepackage[font=small,labelfont={sf,bf},labelsep=period,skip=5pt]{caption}
+\usepackage[most]{tcolorbox}
+\usepackage{microtype}
+\usepackage[hyphens]{url}
+\usepackage[colorlinks=true,linkcolor=ink,urlcolor=accent,citecolor=ink,
+  pdfauthor={Carlo Olivieri, Mariarosaria Negri, Salvatore Sessa},
+  bookmarksnumbered=true]{hyperref}
+\usepackage{scrlayer-scrpage}
+
+\input{build/generated/metadata.tex}
+\input{build/generated/example_values.tex}
+\input{build/generated/tables.tex}
+\hypersetup{pdftitle={Car.Ma.\_Cell \CMCVersion{} User Manual}}
+\hypersetup{pdfsubject={User manual of Car.Ma.\_Cell},
+  pdfkeywords={Car.Ma.\_Cell, mitochondria, mitochondrial network, fluorescence microscopy, skeleton, graph}}
+
+\addtokomafont{disposition}{\color{ink}}
+\addtokomafont{chapter}{\Huge}
+\renewcommand*{\chapterformat}{\mbox{\color{accent}\thechapter\enskip}}
+\RedeclareSectionCommand[beforeskip=0pt,afterskip=1.4\baselineskip]{chapter}
+\RedeclareSectionCommand[beforeskip=1.3\baselineskip,afterskip=0.5\baselineskip]{section}
+\RedeclareSectionCommand[beforeskip=1.0\baselineskip,afterskip=0.3\baselineskip]{subsection}
+\pagestyle{scrheadings}
+\clearpairofpagestyles
+\automark[chapter]{chapter}
+\ihead{\sffamily\small\color{muted}Car.Ma.\_Cell \CMCVersion{} User Manual}
+\ohead{\sffamily\small\color{muted}\leftmark}
+\cfoot{\sffamily\small\color{muted}\pagemark}
+\setkomafont{pageheadfoot}{\normalfont}
+
+\setlength{\emergencystretch}{3em}
+\newcommand{\prog}{Car.Ma.\_Cell}
+\newcommand{\btn}[1]{\textsf{\textbf{#1}}}
+\newcommand{\file}[1]{\texttt{#1}}
+\newtcolorbox{note}[1][Note]{colback=panel,colframe=border,boxrule=0.5pt,arc=2pt,
+  left=6pt,right=6pt,top=4pt,bottom=4pt,fonttitle=\sffamily\bfseries\small,
+  coltitle=ink,colbacktitle=panel,title=#1,before skip=8pt,after skip=8pt}
+
+\newcommand{\screenshot}[3]{%
+  \begin{figure}[H]\centering
+  \includegraphics[width=\linewidth]{#1}
+  \caption{#2}\label{#3}
+  \end{figure}}
+
+\begin{document}
+
+% ----------------------------------------------------------------- title page
+\begin{titlepage}
+\sffamily\color{ink}
+\vspace*{3cm}
+{\fontsize{40}{44}\selectfont\bfseries \prog\par}
+\vspace{0.6cm}
+{\Large Paired analysis of mitochondrial networks\\ in fluorescence micrographs\par}
+\vspace{1.4cm}
+{\LARGE User Manual\par}
+\vspace{0.3cm}
+{\large Version \CMCVersion\quad\textcolor{muted}{\textbullet}\quad \CMCDate\par}
+\vfill
+{\large Carlo Olivieri\quad Mariarosaria Negri\quad Salvatore Sessa\par}
+\vspace{0.6cm}
+{\small\color{muted}
+Source code and releases: \url{https://github.com/colivieri89/Car.Ma._Cell}\\[2pt]
+Released under the MIT License.\par}
+\vspace{1cm}
+\end{titlepage}
+
+\tableofcontents
+
+% =================================================================== 1
+\chapter{Introduction}
+
+\prog{} compares the mitochondrial networks of two cells imaged by fluorescence microscopy. The two images, labelled A and B (by default \emph{Fusion} and \emph{Fission}), go through the same pipeline with the same parameters, so that a difference between the two sets of results reflects the cells and not the settings. For each cell the program extracts the skeleton of the mitochondrial network, turns it into a graph of branches, junctions and endpoints, and reports more than one hundred and fifty quantities side by side: topology, branch lengths, density, branching, connectivity, fragmentation, network complexity, object shape, fractal dimension and node-degree distribution.
+
+The analysis runs in five steps, each shown in its own tab of the program window:
+\begin{enumerate}
+\item \textbf{Inputs.} The two images are read, reduced to one intensity channel, calibrated from their scale bars and resampled to a common pixel size.
+\item \textbf{Deconvolution.} A Richardson--Lucy deconvolution sharpens the thin tubules.
+\item \textbf{Segmentation and skeletonisation.} A tubeness filter and an automatic threshold give the binary mask of the mitochondria, which is reduced to a skeleton one pixel wide.
+\item \textbf{Network.} The skeleton becomes a graph, from which all metrics are computed.
+\item \textbf{Graph structure.} A node-link drawing of the graph of each cell, with its largest network highlighted.
+\end{enumerate}
+A sixth tab compares the metrics of the two cells in a table and a bar chart, and a last tab lists the definitions of the metrics.
+
+\paragraph{What you need.} Two single-channel or colour fluorescence images (PNG, TIFF, JPEG or BMP), each with a scale bar of known length drawn as a bright horizontal bar in its bottom-right corner. Chapter~\ref{ch:images} explains how to prepare them.
+
+\paragraph{What you get.} Figures of every step, CSV and JSON tables of the metrics of each cell, a comparison table of the two cells and, on request, an Excel workbook (Chapter~\ref{ch:output}).
+
+\paragraph{Ways to use it.} Most users work in the graphical window described in Chapters~\ref{ch:install} to~\ref{ch:window}. The same pipeline runs from the command line, and the Python package \file{mitochondrial\_network\_analysis} can be used in scripts (Chapter~\ref{ch:cli}).
+
+% =================================================================== 2
+\chapter{Installation}\label{ch:install}
+
+\prog{} is a Python program. You do not need to install Python by hand: for Windows and macOS the folder contains two files, one that installs everything once and one that starts the program.
+
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Operating system & 1) Install once & 2) Start the program \\
+\midrule
+Windows 10 or 11 & \file{Install\_Windows.bat} & \file{Avvia\_Windows.bat} \\
+macOS 11 (Big Sur) or newer & \file{Install\_Mac.command} & \file{Avvia\_Mac.command} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Getting the program}
+
+Download the source code of the latest release from \url{https://github.com/colivieri89/Car.Ma._Cell/releases/latest} (the archive \file{Source code (zip)} under \emph{Assets}), or use \btn{Code} $\rightarrow$ \btn{Download ZIP} on the repository page. Unzip it into a folder you keep, for example in \emph{Documents}. With git you can also clone the repository:
+\begin{verbatim}
+git clone https://github.com/colivieri89/Car.Ma._Cell.git
+\end{verbatim}
+
+\section{Windows}
+
+\begin{enumerate}
+\item Double-click \file{Install\_Windows.bat}. The installer looks for Python 3.9 or newer. If there is none, it installs Python 3.12 for the current user only, without an administrator password, with \texttt{winget} when available and otherwise with the official installer from \url{https://www.python.org}.
+\item It creates a private environment in the folder \file{.venv} next to the installer and installs the scientific libraries listed in \file{requirements.txt} (NumPy, SciPy, scikit-image, pandas, NetworkX, Matplotlib, tifffile, imageio, Pillow, openpyxl).
+\item When the window says \emph{Setup complete}, close it. From now on, double-click \file{Avvia\_Windows.bat} to start the program.
+\end{enumerate}
+If Windows shows \emph{Windows protected your PC} (SmartScreen) the first time, click \btn{More info} and then \btn{Run anyway}: the batch files are not signed.
+
+\section{macOS}
+
+\begin{enumerate}
+\item Double-click \file{Install\_Mac.command}. The installer looks for a Python 3.9 or newer that has Tkinter, the toolkit of the program window. If there is none, it downloads Python 3.12 from \url{https://www.python.org} and asks once for your password to install it.
+\item It creates the environment \file{.venv} in the program folder and installs the libraries.
+\item When the window says \emph{Setup complete}, press Return to close it. From now on, double-click \file{Avvia\_Mac.command} to start the program.
+\end{enumerate}
+Intel and Apple silicon Macs are both supported.
+
+\begin{note}[Gatekeeper]
+The first time, macOS may refuse to open a \file{.command} file \emph{because it is from an unidentified developer}. Right-click (or Control-click) the file, choose \btn{Open} and confirm with \btn{Open}; macOS remembers the choice. To clear the block for the whole folder at once, open Terminal and run
+\begin{verbatim}
+xattr -dr com.apple.quarantine "/path/to/Car.Ma._Cell"
+\end{verbatim}
+If the Finder opens the file as text instead of running it, make the two files executable from Terminal, inside the program folder:
+\begin{verbatim}
+chmod +x Install_Mac.command Avvia_Mac.command
+\end{verbatim}
+\end{note}
+
+\section{Linux and other systems}
+
+Install Python 3.9 or newer with the Tk bindings (on Debian and Ubuntu: \texttt{sudo apt install python3 python3-venv python3-tk python3-pip}), then, from the program folder:
+\begin{verbatim}
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python gui.py
+\end{verbatim}
+The same commands work on Windows and macOS for users who prefer a terminal (on Windows the interpreter is \file{.venv\textbackslash Scripts\textbackslash python.exe}).
+
+\section{Updating and removing}
+
+To update, download the new release into a new folder and run its installer once. Running the installer again in an existing folder only checks the libraries. Nothing is installed system-wide by \prog{} itself, apart from Python when it was missing: to remove the program, delete its folder.
+
+% =================================================================== 3
+\chapter{Quick start}\label{ch:quick}
+
+The folder \file{examples} contains a synthetic pair of images that the program loads at start-up (Figure~\ref{fig:inputs}): \file{synthetic\_fused.png}, a network of long branched tubules, and \file{synthetic\_fragmented.png}, many short isolated fragments. Each carries a scale bar of \ExBarPx{} pixels that represents 6~µm. The images are drawn by \file{examples/make\_synthetic\_pair.py} and serve only to try the program.
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.36\linewidth]{input_fused.png}\hspace{0.06\linewidth}%
+\includegraphics[width=0.36\linewidth]{input_fragmented.png}
+\caption{The synthetic example pair: fused network (left, cell A) and fragmented mitochondria (right, cell B). The bar in the bottom-right corner is the 6~µm scale bar.}
+\label{fig:inputs}
+\end{figure}
+
+\begin{enumerate}
+\item Start the program (\file{Avvia\_Windows.bat} or \file{Avvia\_Mac.command}). The window opens on the \emph{Welcome} tab (Figure~\ref{fig:welcome}).
+\item Open the tab \emph{Step 1 -- Inputs}. The two example images are already chosen, with labels \emph{Fusion} and \emph{Fission} and scale bars of 6~µm.
+\item Press \btn{Run analysis}. The status bar at the bottom of the window reads \emph{Running paired analysis}; the example takes a few seconds, a pair of large micrographs up to a few minutes.
+\item When the status bar reads \emph{Done}, look through the tabs from \emph{Step 2} to \emph{Step 6}. The fused cell has fewer components, longer branches, a connectivity index of 1 and a much higher network complexity than the fragmented one (Table~\ref{tab:example}).
+\item Press \btn{Save data…} to write all the metrics to an Excel workbook, and \btn{Save pictures…} to copy all the figures to a folder of your choice.
+\end{enumerate}
+
+\screenshot{gui_welcome.png}{The \emph{Welcome} tab, with the program version, the authors and the licence.}{fig:welcome}
+
+To analyse your own cells, press \btn{Browse A…} and \btn{Browse B…}, choose the two images, type the length of each scale bar in micrometres, and press \btn{Run analysis}.
+
+% =================================================================== 4
+\chapter{The program window}\label{ch:window}
+
+\section{Toolbar}
+
+The two rows at the top of the window hold the inputs and the commands (Figure~\ref{fig:step1}).
+
+\begin{description}
+\item[Browse A… / Browse B…] Choose the image of cell A or cell B. The path appears next to the button and the image is shown in the \emph{Step 1} tab.
+\item[Label A / Label B] Names of the two cells, used in titles, tables, file names and the Excel workbook. The defaults are \emph{Fusion} and \emph{Fission}; any text works, for example \emph{WT} and \emph{KO}.
+\item[Scale bar A / B (um)] Length, in micrometres, of the scale bar drawn in each image. The program measures the bar in pixels and derives the pixel size (Section~\ref{sec:calibration}).
+\item[Target um/px] Pixel size of the common grid on which both cells are analysed. Leave it blank to use the finer of the two images; enter a value to impose another one.
+\item[Run analysis] Applies the settings of the Step~1 and Step~2 tabs and runs the pipeline on both images. The button is disabled while the analysis runs.
+\item[Dark / Light] Switches between the light and the dark appearance (also in the \emph{View} menu).
+\item[Save pictures…] Copies every PNG figure of the output folder, with its sub-folders, to a folder of your choice. Available after a run.
+\item[Save data…] Writes the global metrics of both cells to one Excel workbook (Section~\ref{sec:excel}). Available after a run.
+\item[Open output folder] Opens the folder \file{main\_output} of the program in the file manager.
+\end{description}
+
+The \emph{Help} menu opens the \emph{About} dialog with version, authors and licence. The status bar at the bottom shows the progress of the analysis and, at the end, the common pixel size, the length of each scale bar in pixels and the output folder.
+
+\section{Tabs}
+
+\begin{description}
+\item[Welcome] Name, version, authors and licence (Figure~\ref{fig:welcome}).
+\item[Step 1 -- Inputs] The two input images and the settings of Step~2 (Figure~\ref{fig:step1}). Here you can also exclude areas of the images (Section~\ref{sec:exclude}).
+\item[Step 2 -- Deconvolved] The deconvolved images, at the common pixel size, and the settings of Step~3 (Figure~\ref{fig:step2}).
+\item[Step 3+4 -- Skeletons \& Networks] For each cell, the skeleton and the network, with every branch in its own colour, junctions in red and endpoints in cyan (Figure~\ref{fig:step34}).
+\item[Step 5 -- Graph structure] A node-link drawing of the graph of each cell at the same scale: grey lines are the mitochondrial segments, orange dots the junctions, blue dots the endpoints, and the largest connected network is drawn in green (Figure~\ref{fig:step5}).
+\item[Step 6 -- Metrics comparison] The table of the global metrics of the two cells, by group, and the bar chart of ten key metrics (Figure~\ref{fig:step6}). After the first run, the drop-down \emph{Bar-chart colours} switches the chart between \texttt{color} (the colour-blind safe blue and vermillion of the Okabe--Ito palette) and \texttt{mono} (grey and black) without running the analysis again.
+\item[Metric definitions] The formula and meaning of each metric of the table (Figure~\ref{fig:definitions}). Chapter~\ref{ch:metrics} gives the complete list.
+\end{description}
+
+\screenshot{gui_step1_inputs.png}{The \emph{Step 1 -- Inputs} tab with the example pair. On the right, the settings of the deconvolution (Step~2).}{fig:step1}
+
+\screenshot{gui_step2_deconvolved.png}{The \emph{Step 2 -- Deconvolved} tab after a run. On the right, the settings of segmentation and skeletonisation (Step~3).}{fig:step2}
+
+\screenshot{gui_step34_networks.png}{The \emph{Step 3+4} tab: skeletons (left) and networks (right) of the two cells.}{fig:step34}
+
+\screenshot{gui_step5_graph.png}{The \emph{Step 5 -- Graph structure} tab. The largest network of each cell is drawn in green.}{fig:step5}
+
+\screenshot{gui_step6_metrics.png}{The \emph{Step 6 -- Metrics comparison} tab: table of the global metrics and bar chart of the key metrics.}{fig:step6}
+
+\screenshot{gui_metric_definitions.png}{The \emph{Metric definitions} tab.}{fig:definitions}
+
+\section{Zoom and pan}\label{sec:zoom}
+
+Above the images of each tab, \btn{−} and \btn{+} zoom out and in on all panels together, and \btn{Reset view} restores the full view. The bar below the images is the standard Matplotlib toolbar: the cross arrows pan, the magnifier zooms on a rectangle, the house restores the view, and the disk saves the panel as an image.
+
+\section{Excluding areas}\label{sec:exclude}
+
+Debris, a neighbouring cell or a label in the field can be removed from the analysis. In the \emph{Step 1} tab, tick \btn{Exclude areas (drag on image)} and drag a rectangle on either image; repeat for as many areas as needed. The excluded rectangles are drawn on the images and are set to background before the analysis of that cell. \btn{Clear excluded areas} removes them all. The rectangles are stored as fractions of the width and height of each image, so they follow the image when it is resampled.
+
+\section{Settings}\label{sec:settings}
+
+The panels on the right of the Step~1 and Step~2 tabs show the main parameters with their default values (Tables~\ref{tab:step2} and~\ref{tab:step3}). Edited values are applied when you press \btn{Run analysis} and stay in force until the window is closed; \btn{Reset to defaults} restores the values written in \file{main.py}. Section~\ref{sec:pipeline} explains what each parameter does.
+
+\section{Appearance}
+
+\btn{Dark} switches the whole window, figures included, to a dark appearance (Figure~\ref{fig:dark}); \btn{Light} switches it back. The figures saved to disk always have a white background.
+
+\screenshot{gui_dark.png}{The dark appearance.}{fig:dark}
+
+% =================================================================== 5
+\chapter{Preparing the images}\label{ch:images}
+
+\begin{itemize}
+\item \textbf{One cell per image}, roughly centred, with its mitochondria labelled by a fluorescent dye or protein. A field with several cells works if the others are excluded (Section~\ref{sec:exclude}).
+\item \textbf{Formats}: PNG, TIFF, JPEG or BMP, 8 or 16 bit. In a colour image the program uses the channel with the highest mean intensity and ignores an alpha channel; save the mitochondrial channel alone if the image has several stains.
+\item \textbf{Scale bar}: a solid, bright, horizontal bar in the bottom-right corner, as written by most microscope and Fiji exports. Its length in micrometres is entered in the toolbar. The bar is found automatically (Section~\ref{sec:calibration}) and is erased before the analysis, together with any bright text near the bottom edge.
+\item \textbf{Same acquisition}: the two cells should come from the same microscope, objective and settings. The program compensates different pixel sizes, not different optics or exposure.
+\item Avoid saturated images and strong compression (JPEG at low quality), which merge neighbouring tubules.
+\end{itemize}
+
+% =================================================================== 6
+\chapter{How the analysis works}\label{ch:method}
+
+\section{Calibration and common grid}\label{sec:calibration}
+
+For each image the program looks for the scale bar in the bottom 20\,\% of the height and the right 60\,\% of the width. There it marks the pixels at or above the 99th percentile of the intensity of the whole image and takes the longest horizontal run of marked pixels in a single row as the bar. With a bar of $n$ pixels and a declared length $\ell$, the pixel size is $s = \ell/n$ (µm per pixel). If no bar is found, the analysis stops with the message \emph{Could not detect a scale bar}.
+
+Both images are then resampled with bicubic interpolation to a common pixel size: the finer of the two by default (the coarser image is enlarged), or the value of \btn{Target um/px}. All lengths and areas of the two cells are therefore measured on the same grid. In the example both bars measure \ExBarPx{} pixels and the common pixel size is \ExUmPerPx{}~µm.
+
+\section{The pipeline}\label{sec:pipeline}
+
+The two cells go through the same steps with the same parameters.
+
+\subsection*{Step 1: input}
+The intensity is normalised to $[0,1]$ and the excluded areas are set to zero. Bright annotations in the bottom 18\,\% of the image (the scale bar and its text) are found with the 99th percentile and erased, with a margin of 6 pixels, so that they do not enter the mask.
+
+\subsection*{Step 2: deconvolution}
+A Richardson--Lucy deconvolution with a Gaussian point-spread function (PSF) sharpens the tubules; the result is normalised to $[0,1]$. Table~\ref{tab:step2} lists the settings. The three \emph{display} settings change only the picture shown in the Step~2 tab and saved as \file{step2\_deconvolved.png} (percentile stretch and gamma), not the analysis. When \btn{Use Richardson-Lucy deconvolution} is off, Step~3 works on the normalised input.
+
+\begin{table}[H]\centering\small
+\caption{Settings of Step 2 (Step 1 tab), with their names in \file{main.py} and their default values.}\label{tab:step2}
+\begin{tabularx}{\linewidth}{@{}Xll@{}}
+\toprule
+Setting & Name in \file{main.py} & Default \\
+\midrule
+\SettingsStepTwo
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{Step 3: segmentation and skeletonisation}
+The binary mask of the mitochondria is the intersection of three conditions, computed on the deconvolved image:
+\begin{enumerate}
+\item \textbf{Cell envelope.} The image is smoothed with a Gaussian of width \emph{cell-envelope smoothing sigma}; the pixels above \emph{cell-envelope Otsu factor} times the Otsu threshold form a permissive mask of the cell body, dilated by a disk of \emph{cell-envelope dilation radius}. If this mask covers less than 1\,\% or more than 95\,\% of the image, the plain Otsu threshold is used instead. Signal outside the envelope is ignored.
+\item \textbf{Tubeness.} A rolling-ball background of the given radius is subtracted, a median filter of radius 1 pixel removes isolated noise, and the Sato tubeness filter for bright tubular structures, computed at the scales \emph{tubeness sigmas}, enhances the tubules. The tubeness is normalised to a maximum of 1 and thresholded with the chosen automatic method (\texttt{\ThresholdChoices}) multiplied by the \emph{threshold multiplier}.
+\item \textbf{Intensity floor.} The deconvolved intensity must exceed \emph{nucleus-floor Otsu factor} times the Otsu threshold of the intensities inside the envelope, which removes the dim perinuclear haze.
+\end{enumerate}
+The mask is closed with a disk of \emph{closing radius}; holes and objects smaller than the given sizes are filled and removed (0 turns these two steps off). Finally the mask is reduced to a skeleton one pixel wide with the algorithm of Lee, Kashyap and Chu (1994).
+
+\begin{note}[Threshold method and multiplier]
+The default multiplier, 4.0, is tuned for the Li method, whose threshold on the tubeness image is low. With Otsu, IsoData, Yen or Minimum the threshold is higher and a multiplier near 1 is needed; if the multiplier is too high, the analysis stops with \emph{Binary mask is empty}. The Minimum method needs a histogram with two peaks; when it cannot find them, the program uses Otsu and writes a warning in the terminal.
+\end{note}
+
+\begin{table}[H]\centering\small
+\caption{Settings of Step 3 (Step 2 tab), with their names in \file{main.py} and their default values.}\label{tab:step3}
+\begin{tabularx}{\linewidth}{@{}Xll@{}}
+\toprule
+Setting & Name in \file{main.py} & Default \\
+\midrule
+\SettingsStepThree
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{Step 4: network graph}
+Every skeleton pixel becomes a node of a graph in which neighbouring pixels (8-connectivity) are joined by edges of length 1 (side) or $\sqrt2$ (diagonal). By its number of neighbours (degree $d$) a node is an \emph{endpoint} ($d=1$), a \emph{slab} pixel ($d=2$) or a \emph{junction} ($d\ge3$). A \emph{branch} is a chain of slab pixels between two junctions or endpoints, a closed loop of slab pixels is one branch, and an isolated pixel is a branch of zero length. A connected component that contains at least one junction is a \emph{network}; a component without junctions is an \emph{individual mitochondrion} (a single filament or punctum).
+
+\subsection*{Step 5: graph structure}
+The graph of each cell is drawn as lines between junctions and endpoints, at the same physical scale for both cells, with the largest network highlighted.
+
+\section{Advanced parameters}
+
+Some parameters are not in the window and are set as constants at the top of \file{main.py}: the theoretical PSF (\texttt{PSF\_MODE = "theoretical"}, with $\sigma = 0.21\,\lambda_{\mathrm{em}}/\mathrm{NA}$ from \texttt{PSF\_NA}, \texttt{PSF\_WAVELENGTH\_EM\_NM} and \texttt{PSF\_PIXEL\_SIZE\_NM}), an alternative segmentation that follows the Fiji commands Subtract Background, Normalize and Auto Threshold on an 8-bit image (\texttt{FIJI\_MODE = True}), the length of the scale bar drawn on the comparison figures (\texttt{DISPLAY\_SCALEBAR\_UM}) and the margins of the annotation removal. Edit them with a text editor, save, and start the program again.
+
+% =================================================================== 7
+\chapter{Metrics}\label{ch:metrics}
+
+Notation: $L$ total skeleton length, $N_b$ branches, $N_j$ junctions ($d\ge3$), $N_e$ endpoints ($d=1$), $N_c$ connected components, $A_{\mathrm{ROI}}$ area of the analysed image, $A_{\mathrm{cell}}$ area of the convex hull of the mitochondrial mask (a proxy of the cell footprint, robust to cropping), $A_{\mathrm{mito}}$ area of the mask. Lengths and areas are given in pixels of the common grid and, where marked, in µm and µm\textsuperscript{2}. Every metric of the table of Step~6 is described in the \emph{Metric definitions} tab as well.
+
+\section{Topology and lengths}
+\begin{description}
+\item[Skeleton pixels] number of pixels of the skeleton, equal to the number of nodes of the graph.
+\item[Endpoints, junction nodes, branches, connected components] $N_e$, $N_j$, $N_b$, $N_c$.
+\item[Isolated components and filaments] components without any junction, and their branches; \emph{non-isolated filaments} are the branches of networks.
+\item[Total skeleton length] $L=\sum_b \ell_b$, the sum of the branch lengths.
+\item[Branch length statistics] mean, median, minimum, maximum and standard deviation of the branch lengths, in pixels and µm.
+\end{description}
+
+\section{Cell normalisation}
+\begin{description}
+\item[ROI area] $A_{\mathrm{ROI}}$, width times height of the analysed image.
+\item[Cell area (hull)] $A_{\mathrm{cell}}$.
+\item[Mitochondrial area] $A_{\mathrm{mito}}$, foreground pixels of the cleaned mask.
+\item[Mito / cell area fraction] $f = A_{\mathrm{mito}}/A_{\mathrm{cell}}$.
+\item[Network density] $\rho = L/A_{\mathrm{ROI}}$, in px$^{-1}$ and µm$^{-1}$.
+\item[Normalised skeleton length] $L/A_{\mathrm{cell}}$, in px$^{-1}$.
+\end{description}
+
+\section{Branching}
+\begin{description}
+\item[Branching index] $\mathrm{BI} = N_j/A_{\mathrm{cell}}$, also per µm\textsuperscript{2}.
+\item[Branches density] $N_b/A_{\mathrm{cell}}$.
+\item[Junctions and endpoints per unit length] $N_j/L$ and $N_e/L$. Many endpoints per unit length signal a fragmented network.
+\end{description}
+
+\section{Connectivity and fragmentation}
+\begin{description}
+\item[Connectivity index, length-based] $C_L = L_{\mathrm{net}}/L$, the fraction of the skeleton length that belongs to networks; 1 for a fully connected network, 0 when all mitochondria are isolated.
+\item[Connectivity index, count-based] $C_N = N_{b,\mathrm{net}}/N_b$, the fraction of branches that belong to networks.
+\item[Fragmentation index, length-based] $F_L = 1-C_L$.
+\item[Fragmentation index, count-based] $F_N = N_{c,\mathrm{iso}}/N_c$, the fraction of components without junctions.
+\item[Components density] $N_c/A_{\mathrm{cell}}$.
+\item[Networks and individuals] number of networks $N_{\mathrm{net}}$, number of individual mitochondria $N_{\mathrm{ind}}$, and their ratio $N_{\mathrm{net}}/N_{\mathrm{ind}}$.
+\item[MNBN] mitochondrial network branching number, the mean number of branches per network (Valente et al., 2017), reported as \texttt{mitochondrial\_connectivity\_index}; the distributions of the branches per network and of the network sizes are reported too.
+\end{description}
+
+\section{Network complexity index}
+\begin{equation*}
+\mathrm{NCI} \;=\; \frac{N_j}{L}\cdot\frac{L}{A_{\mathrm{cell}}}\cdot C_L \;=\; \frac{N_j\,C_L}{A_{\mathrm{cell}}},
+\end{equation*}
+in px$^{-2}$ of the common grid. It combines the intensity of branching, the skeleton length per unit cell area and the connectivity: it is high for networks that are dense, branched and connected at the same time, and low for sparse or fragmented ones. Since both cells share the same grid, the values of a pair are directly comparable.
+
+\section{Object shape and fractal dimension}
+Each connected object of the mask (a labelled region) gives its area, its aspect ratio $\ell_{\mathrm{major}}/\ell_{\mathrm{minor}}$ and its circularity $4\pi A/P^2$, with $A$ and $P$ its area and perimeter. The program reports the statistics of these three distributions, the number of objects, the total mitochondrial area and the footprint, the mitochondrial area as a percentage of the image. The fractal dimension of the mask is the slope of $\log N(s)$ against $\log(1/s)$, with $N(s)$ the number of boxes of side $s = 2, 4, 8, 16, 32, 64$ pixels that contain part of the mask. Derived indices: branching per object ($N_j$ over the number of objects), branching per µm\textsuperscript{2} of mitochondrial area, and fragmentation by objects (individual mitochondria over the number of objects).
+
+\section{Node-degree distribution}
+For each degree $K$ up to the largest one found, the number $N_K$ of skeleton pixels with $K$ neighbours and its percentage of all nodes, plus the total of the nodes with $K\ge3$.
+
+\section{Distribution statistics}
+For every distribution (branch lengths, branches per network, network sizes, object areas, aspect ratios, circularities) the program gives: number $n$, mean, standard deviation, median, minimum, maximum, coefficient of variation $100\,\sigma/\mu$, skewness, excess kurtosis, 25th and 75th percentiles and interquartile range. The keys end in \texttt{\_n}, \texttt{\_mean}, \texttt{\_sd}, \texttt{\_median}, \texttt{\_min}, \texttt{\_max}, \texttt{\_cv\_pct}, \texttt{\_skewness}, \texttt{\_kurtosis}, \texttt{\_p25}, \texttt{\_p75}, \texttt{\_iqr}.
+
+\section{The bar chart}
+The bar chart of Step~6 and \file{comparison\_metrics\_bars.png} show ten key metrics: mitochondrial footprint (\%), networks, individuals, MNBN, fractal dimension, skeleton components, connectivity $C_L$, fragmentation $F_L$, network complexity and mean branch length (µm). Each bar carries its value.
+
+\section{Example}
+Table~\ref{tab:example} lists some metrics of the example pair, as computed by this version of the program, and Figure~\ref{fig:bars} shows the bar chart saved by the program.
+
+\begin{table}[H]\centering\small
+\caption{Key metrics of the synthetic example pair.}\label{tab:example}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Metric & Fusion (fused) & Fission (fragmented) \\
+\midrule
+\ExampleMetrics
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.52\linewidth]{comparison_metrics_bars.png}
+\caption{\file{comparison\_metrics\_bars.png} of the example pair.}\label{fig:bars}
+\end{figure}
+
+% =================================================================== 8
+\chapter{Output files}\label{ch:output}
+
+Every run writes its results into the folder \file{main\_output} of the program, with one sub-folder per cell named after its label (in lower case, with spaces and symbols replaced by underscores). A new run with the same labels overwrites the previous files: copy the folder, or use \btn{Save pictures…} and \btn{Save data…}, before analysing the next pair.
+
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+File & Content \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{In \file{main\_output}}} \\
+\file{comparison\_metrics.csv} & every global metric of both cells, one row per metric: columns \texttt{metric}, label A, label B, \texttt{delta\_A\_minus\_B} and \texttt{ratio\_A\_over\_B} \\
+\file{comparison\_metrics\_bars.png} & bar chart of the key metrics \\
+\file{comparison\_step2.png} … \file{comparison\_step5.png} & the two cells side by side at each step, at the same scale, with a scale bar \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{In each cell folder}} \\
+\file{step2\_deconvolved.png} & deconvolved image (display stretch) \\
+\file{step3\_skeleton.png} & skeleton \\
+\file{step4\_network.png} & network: branches, junctions and endpoints \\
+\file{step5\_graph.png} & graph structure \\
+\file{step4\_global\_metrics.json}, \file{.csv} & all global metrics of the cell (Chapter~\ref{ch:metrics}) \\
+\file{step4\_branches.csv} & one row per branch: component, start and end pixel and type, pixels, length \\
+\file{step4\_branch\_metrics.csv} & as above, with length in µm and whether the branch is an isolated filament \\
+\file{step4\_component\_metrics.csv} & one row per connected component: length, endpoints, junctions, branches, bounding box, centroid \\
+\file{step4\_junctions.csv} & position and degree of each junction pixel \\
+\file{step4\_analyze\_skeleton.csv} & branch table in the layout of the Fiji \emph{Analyze Skeleton} plug-in \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Pixel coordinates are given as row and column of the common grid, from the top-left corner.
+
+\section{Excel workbook}\label{sec:excel}
+\btn{Save data…} writes one sheet, \emph{Metrics}, with the name of each metric in the first column and its value for each cell in the following columns, headed by the labels. The metrics shown in Step~6 come first, in the same order, followed by all the others. The default file name is \file{CarMaCell\_metrics.xlsx}.
+
+\section{Example results}
+The folder \file{examples/example\_results} contains the output of a paired analysis of two fluorescence micrographs, with labels \emph{Fusion} and \emph{Fission}, as an example of what a run on real cells produces.
+
+% =================================================================== 9
+\chapter{Command line and Python}\label{ch:cli}
+
+\section{Paired analysis from the command line}
+From the program folder, with the interpreter of \file{.venv}:
+\begin{verbatim}
+python main.py <image A> <scale bar A in um> <image B> <scale bar B in um>
+python main.py examples/synthetic_fused.png 6 examples/synthetic_fragmented.png 6
+\end{verbatim}
+The run uses the labels \emph{Fusion} and \emph{Fission}, the defaults of \file{main.py}, and writes into \file{main\_output}. Without arguments, \texttt{python main.py} opens the window.
+
+\section{In a Python script}
+\begin{verbatim}
+import main
+result = main.process_pair("cellA.tif", 10.0, "cellB.tif", 18.0,
+                           output_dir="results", label_a="WT", label_b="KO",
+                           verbose=False)
+metrics_a = result["fusion"]["global_metrics"]   # dict of all metrics of cell A
+table = result["comparison_df"]                  # pandas DataFrame of the comparison
+\end{verbatim}
+The keys \texttt{"fusion"} and \texttt{"fission"} hold the results of cell A and cell B whatever their labels. Settings are module constants and can be changed before the call, for example \texttt{main.THRESHOLD\_METHOD = "otsu"; main.THRESHOLD\_FACTOR = 1.0}. The arguments \texttt{exclude\_regions\_a} and \texttt{exclude\_regions\_b} take lists of rectangles \texttt{(x0, y0, x1, y1)} in fractions of the image width and height.
+
+\section{Single images: the package}
+The package \file{mitochondrial\_network\_analysis} holds the building blocks of the pipeline (input, deconvolution, segmentation, skeleton, graph, metrics and figures) and a separate single-image pipeline with its own command line:
+\begin{verbatim}
+python -m mitochondrial_network_analysis.cli --input cell.tif --output results \
+       --pixel-size-um 0.1
+python -m mitochondrial_network_analysis.cli --help
+\end{verbatim}
+Its defaults (Otsu threshold, no tubeness filter, 30 deconvolution iterations) differ from those of the paired analysis, so its results are not directly comparable with those of the window. \file{examples/run\_example.py} runs it on a synthetic image; installing the folder with \texttt{pip install .} also provides the command \texttt{mito-analyze}.
+
+\section{Tests}
+The folder \file{tests} checks the calibration, the outputs and the metrics of the paired analysis on the synthetic pair, and the agreement of the version numbers. Run them with \texttt{python -m pytest} after \texttt{pip install pytest}. They run on every change of the repository on Windows, macOS and Linux.
+
+% =================================================================== 10
+\chapter{Troubleshooting}
+
+\begin{description}
+\item[\emph{Could not detect a scale bar}] The bar must be a bright horizontal line in the bottom-right corner, among the brightest pixels of the image. Re-export the image with its scale bar burnt in, or add one in Fiji (\emph{Analyze $\rightarrow$ Tools $\rightarrow$ Scale Bar}, solid white, bottom right).
+\item[\emph{Binary mask is empty}] The threshold removed all signal: lower the \emph{threshold multiplier} (for methods other than Li, start from 1) or check that the image contains the mitochondrial channel.
+\item[\emph{Skeleton is empty}] The cleaning removed everything: set \emph{remove small objects} and \emph{fill holes} to 0 and check the mask in the Step~3+4 tab.
+\item[Too many small fragments] Raise the threshold multiplier or \emph{remove small objects}, or exclude areas with debris.
+\item[Tubules broken in pieces] Lower the threshold multiplier, increase the closing radius, or turn the deconvolution on if it was off.
+\item[\emph{… is not installed yet}] The start file was used before the installer. Run \file{Install\_Windows.bat} or \file{Install\_Mac.command} first.
+\item[The installer cannot download] Check the internet connection; the installer needs \url{https://www.python.org} (only if Python is missing) and the Python Package Index.
+\item[The program does not start after moving the folder] The environment \file{.venv} belongs to the folder where it was created. Delete \file{.venv} and run the installer again.
+\item[Messages and errors] Problems are shown in a dialog and in the terminal window that opens with the program; quote that text when you report a problem at \url{https://github.com/colivieri89/Car.Ma._Cell/issues}.
+\end{description}
+
+% =================================================================== 11
+\chapter{Citation, licence and authors}
+
+\paragraph{Citation.} If you use \prog{} in your work, please cite it as described in the file \file{CITATION.cff} of the repository. Every release is archived on Zenodo, which assigns it a DOI; the DOI shown in the README refers to all versions.
+
+\paragraph{Licence.} \prog{} is released under the MIT License (file \file{LICENSE}). It uses NumPy, SciPy, scikit-image, pandas, NetworkX, Matplotlib, tifffile, imageio, Pillow and openpyxl, each under its own licence.
+
+\paragraph{Authors.} Carlo Olivieri, Mariarosaria Negri, Salvatore Sessa.
+
+\paragraph{References.}
+\begin{itemize}
+\item T.-C. Lee, R. L. Kashyap and C.-N. Chu, Building skeleton models via 3-D medial surface/axis thinning algorithms, \emph{CVGIP: Graphical Models and Image Processing} 56 (1994) 462--478.
+\item Y. Sato et al., Three-dimensional multi-scale line filter for segmentation and visualization of curvilinear structures in medical images, \emph{Medical Image Analysis} 2 (1998) 143--168.
+\item W. H. Richardson, Bayesian-based iterative method of image restoration, \emph{Journal of the Optical Society of America} 62 (1972) 55--59; L. B. Lucy, An iterative technique for the rectification of observed distributions, \emph{The Astronomical Journal} 79 (1974) 745--754.
+\item C. H. Li and C. K. Lee, Minimum cross entropy thresholding, \emph{Pattern Recognition} 26 (1993) 617--625.
+\item A. J. Valente, L. A. Maddalena, E. L. Robb, F. Moradi and J. A. Stuart, A simple ImageJ macro tool for analyzing mitochondrial network morphology in mammalian cell culture, \emph{Acta Histochemica} 119 (2017) 315--326.
+\item I. Arganda-Carreras, R. Fernández-González, A. Muñoz-Barrutia and C. Ortiz-De-Solórzano, 3D reconstruction of histological sections: application to mammary gland tissue, \emph{Microscopy Research and Technique} 73 (2010) 1019--1029 (\emph{Analyze Skeleton}).
+\item B. Wong, Color blindness, \emph{Nature Methods} 8 (2011) 441.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,10 @@
+numpy>=1.22
+scipy>=1.9
+scikit-image>=0.20
+pandas>=1.5
+networkx>=2.8
+matplotlib>=3.6
+tifffile>=2022.10.10
+imageio>=2.25
+Pillow>=9.0
+openpyxl>=3.0

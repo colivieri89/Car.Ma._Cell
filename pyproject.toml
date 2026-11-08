@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mitochondrial_network_analysis"
+version = "1.1.0"
+description = "Car.Ma._Cell: paired analysis of mitochondrial networks in fluorescence micrographs."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Carlo Olivieri" },
+    { name = "Mariarosaria Negri" },
+    { name = "Salvatore Sessa" },
+]
+keywords = ["microscopy", "mitochondria", "skeleton", "deconvolution", "network analysis"]
+
+[project.urls]
+Repository = "https://github.com/colivieri89/Car.Ma._Cell"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+    "numpy>=1.22",
+    "scipy>=1.9",
+    "scikit-image>=0.20",
+    "pandas>=1.5",
+    "networkx>=2.8",
+    "matplotlib>=3.6",
+    "tifffile>=2022.10.10",
+    "imageio>=2.25",
+    "Pillow>=9.0",
+    "openpyxl>=3.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "pytest-cov", "ruff"]
+
+[project.scripts]
+mito-analyze = "mitochondrial_network_analysis.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["mitochondrial_network_analysis*"]
+exclude = ["tests*", "examples*"]

@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "Car.Ma._Cell: paired analysis of mitochondrial networks in fluorescence micrographs"
+version: 1.1.0
+license: MIT
+repository-code: "https://github.com/colivieri89/Car.Ma._Cell"
+authors:
+  - family-names: Olivieri
+    given-names: Carlo
+    orcid: "https://orcid.org/0000-0002-3548-846X"
+    affiliation: "Department of Engineering, Pegaso Telematic University, Naples, Italy"
+  - family-names: Negri
+    given-names: Mariarosaria
+  - family-names: Sessa
+    given-names: Salvatore
+abstract: >-
+  Desktop application and Python library for the quantitative comparison of
+  the mitochondrial networks of two cells imaged by fluorescence microscopy.
+  Both images are brought to a common physical resolution from their scale
+  bars and processed with the same parameters: background subtraction,
+  optional Richardson-Lucy deconvolution, tubeness enhancement, automatic
+  thresholding, skeletonisation and extraction of the skeleton graph. The
+  program reports topology, branch lengths, density, branching,
+  connectivity, fragmentation, network complexity, object shape, fractal
+  dimension and node-degree distribution of each cell, side by side, with
+  figures, CSV and JSON files and an Excel workbook.
+keywords:
+  - mitochondria
+  - mitochondrial network
+  - fluorescence microscopy
+  - image analysis
+  - skeletonisation
+  - graph analysis
+  - fusion
+  - fission
