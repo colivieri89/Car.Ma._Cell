@@ -1,5 +1,6 @@
 # Car.Ma._Cell
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24064002.svg)](https://doi.org/10.5281/zenodo.24064002)
 [![Tests](https://github.com/colivieri89/Car.Ma._Cell/actions/workflows/tests.yml/badge.svg)](https://github.com/colivieri89/Car.Ma._Cell/actions/workflows/tests.yml)
 [![Release](https://img.shields.io/github/v/release/colivieri89/Car.Ma._Cell)](https://github.com/colivieri89/Car.Ma._Cell/releases/latest)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
@@ -143,7 +144,7 @@ The tests run the paired pipeline on the synthetic pair and check calibration, o
 
 ## Citation
 
-If you use Car.Ma._Cell, please cite it as described in `CITATION.cff` (GitHub shows it under **Cite this repository**). Every release is archived on Zenodo.
+If you use Car.Ma._Cell, please cite it as described in `CITATION.cff` (GitHub shows it under **Cite this repository**). Every release is archived on Zenodo. The DOI [10.5281/zenodo.24064002](https://doi.org/10.5281/zenodo.24064002) refers to all versions and resolves to the latest one.
 
 ## Licence
 

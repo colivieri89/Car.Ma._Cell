@@ -4,6 +4,7 @@ type: software
 title: "Car.Ma._Cell: paired analysis of mitochondrial networks in fluorescence micrographs"
 version: 1.1.0
 license: MIT
+doi: 10.5281/zenodo.24064002
 repository-code: "https://github.com/colivieri89/Car.Ma._Cell"
 authors:
   - family-names: Olivieri
